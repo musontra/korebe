@@ -1,6 +1,6 @@
 ---
-// Phase 2: basic playable client. Lobby (room code) -> game canvas.
-// Ugly on purpose: plain shapes, no Stitch, no polish. Just exercises the server loop end to end.
+// Phase 3: vision & sound + real HUD. Lobby (room code) -> game canvas with a HUD overlay.
+// Functional/plain HUD (Tailwind), NOT Stitch yet (that is Phase 4).
 import "../styles/global.css";
 ---
 
@@ -13,7 +13,7 @@ import "../styles/global.css";
   </head>
   <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
     <div id="lobby" class="text-center">
-      <h1 class="text-xl font-semibold mb-4">körebe — Phase 2</h1>
+      <h1 class="text-xl font-semibold mb-4">körebe — Phase 3</h1>
       <input
         id="codeInput"
         type="text"
@@ -25,8 +25,25 @@ import "../styles/global.css";
       <p id="status" class="mt-4 text-sm text-neutral-400"></p>
     </div>
 
-    <div id="game" class="hidden">
-      <canvas id="canvas" class="border border-neutral-700"></canvas>
+    <!-- Game: canvas with an absolute HUD overlay on top -->
+    <div id="game" class="hidden relative">
+      <canvas id="canvas" class="block border border-neutral-700"></canvas>
+
+      <!-- HUD layer. pointer-events-none so canvas clicks (shooting) pass through. -->
+      <div class="absolute inset-0 pointer-events-none select-none">
+        <div class="absolute top-2 left-1/2 -translate-x-1/2 text-center">
+          <div id="hudPhase" class="text-sm font-semibold text-neutral-100"></div>
+          <div id="hudTimer" class="text-3xl font-bold text-neutral-50 leading-tight"></div>
+        </div>
+        <div
+          id="hudBlind"
+          class="hidden absolute top-2 right-2 px-3 py-1 rounded bg-red-600 text-white text-sm font-bold tracking-wide"
+        >
+          KÖREBESİN
+        </div>
+        <div id="hudAlive" class="absolute bottom-2 left-2 text-sm text-neutral-200"></div>
+        <div id="hudBounce" class="hidden absolute bottom-2 right-2 text-sm font-semibold text-yellow-300"></div>
+      </div>
     </div>
 
     <script>
@@ -34,6 +51,8 @@ import "../styles/global.css";
       import { initCanvas } from "../game/canvas";
       import { startRenderer } from "../game/renderer";
       import { startInput } from "../game/input";
+      import { ingestSounds } from "../game/vision";
+      import { updateHud } from "../game/hud/hud";
 
       const lobby = document.getElementById("lobby")!;
       const game = document.getElementById("game")!;
@@ -64,8 +83,11 @@ import "../styles/global.css";
           onWaiting: (count, need) => {
             status.textContent = `waiting ${count}/${need}`;
           },
-          onSnapshot: () => {
+          onSnapshot: (snap) => {
             enterGame();
+            // Orchestration lives in the page so net.ts stays transport-only.
+            ingestSounds(snap.sounds);
+            updateHud(snap);
           },
           onError: (m) => {
             status.textContent = `error: ${m}`;

@@ -1,7 +1,9 @@
 // Render the authoritative snapshot to the canvas each animation frame (requestAnimationFrame).
 // Pure snapshot drawing: no interpolation, no smoothing, no client-side prediction.
-import { getSnapshot, getMyId, type Snapshot, type PlayerView } from "./state";
+// Phase 3: raw debug panel removed (replaced by the HUD DOM layer); blind vision overlay added.
+import { getSnapshot, type PlayerView } from "./state";
 import { getCtx, worldToPixel, CANVAS_SIZE } from "./canvas";
+import { drawVisionOverlay } from "./vision";
 
 // World units; must match server config (PLAYER_RADIUS=25, BULLET_RADIUS=8).
 const PLAYER_RADIUS = 25;
@@ -42,7 +44,7 @@ function draw(): void {
     return;
   }
 
-  // obstacles (rectangles) — empty in Phase 2
+  // obstacles (rectangles) — empty in Phase 2/3
   ctx.fillStyle = "#444";
   for (const o of snap.obstacles) {
     ctx.fillRect(worldToPixel(o.x), worldToPixel(o.y), worldToPixel(o.w), worldToPixel(o.h));
@@ -65,7 +67,8 @@ function draw(): void {
     ctx.fill();
   }
 
-  drawDebug(snap);
+  // Blind-only darkness + sound ripples. No-op for non-blind clients (no darkness leak).
+  drawVisionOverlay(ctx, snap);
 }
 
 function drawPlayer(id: string, p: PlayerView): void {
@@ -91,26 +94,6 @@ function drawPlayer(id: string, p: PlayerView): void {
   }
 
   drawText(id, x - 7, y - r - 6);
-}
-
-function drawDebug(snap: Snapshot): void {
-  const me = getMyId() ?? "?";
-  const youAreBlind = snap.you?.isBlind ? " (BLIND)" : "";
-  const aliveCount = Object.values(snap.players).filter((p) => p.alive).length;
-  const lines = [
-    `phase: ${snap.phase}`,
-    `tick: ${snap.tick}`,
-    `you are ${me}${youAreBlind}`,
-    `alive: ${aliveCount}`,
-    `bounces: ${snap.bouncesRemaining}/${snap.maxBounces}`,
-    snap.winnerId ? `WINNER: ${snap.winnerId}` : "",
-  ];
-  let y = 16;
-  for (const line of lines) {
-    if (!line) continue;
-    drawText(line, 8, y);
-    y += 16;
-  }
 }
 
 function drawText(text: string, x: number, y: number): void {
