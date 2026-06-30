@@ -1,5 +1,6 @@
 ---
-// Phase 0: empty landing page. No game logic yet — just proves the client builds and serves.
+// Phase 2: basic playable client. Lobby (room code) -> game canvas.
+// Ugly on purpose: plain shapes, no Stitch, no polish. Just exercises the server loop end to end.
 import "../styles/global.css";
 ---
 
@@ -11,9 +12,69 @@ import "../styles/global.css";
     <title>körebe</title>
   </head>
   <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
-    <main class="text-center">
-      <h1 class="text-2xl font-semibold tracking-tight">körebe</h1>
-      <p class="mt-2 text-sm text-neutral-400">Phase 0 — skeleton only.</p>
-    </main>
+    <div id="lobby" class="text-center">
+      <h1 class="text-xl font-semibold mb-4">körebe — Phase 2</h1>
+      <input
+        id="codeInput"
+        type="text"
+        value="ROOM1"
+        placeholder="room code"
+        class="px-3 py-2 rounded bg-neutral-800 border border-neutral-600 text-center"
+      />
+      <button id="joinBtn" class="ml-2 px-4 py-2 rounded bg-blue-600 hover:bg-blue-500">Katıl</button>
+      <p id="status" class="mt-4 text-sm text-neutral-400"></p>
+    </div>
+
+    <div id="game" class="hidden">
+      <canvas id="canvas" class="border border-neutral-700"></canvas>
+    </div>
+
+    <script>
+      import { connect } from "../game/net";
+      import { initCanvas } from "../game/canvas";
+      import { startRenderer } from "../game/renderer";
+      import { startInput } from "../game/input";
+
+      const lobby = document.getElementById("lobby")!;
+      const game = document.getElementById("game")!;
+      const status = document.getElementById("status")!;
+      const codeInput = document.getElementById("codeInput") as HTMLInputElement;
+      const joinBtn = document.getElementById("joinBtn")!;
+      const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+
+      let entered = false;
+
+      function enterGame() {
+        if (entered) return;
+        entered = true;
+        lobby.classList.add("hidden");
+        game.classList.remove("hidden");
+        initCanvas(canvas);
+        startRenderer();
+        startInput(canvas);
+      }
+
+      joinBtn.addEventListener("click", () => {
+        const code = codeInput.value.trim() || "ROOM1";
+        status.textContent = "connecting...";
+        connect(code, {
+          onJoined: (id) => {
+            status.textContent = `joined as ${id}`;
+          },
+          onWaiting: (count, need) => {
+            status.textContent = `waiting ${count}/${need}`;
+          },
+          onSnapshot: () => {
+            enterGame();
+          },
+          onError: (m) => {
+            status.textContent = `error: ${m}`;
+          },
+          onClose: () => {
+            status.textContent = "disconnected";
+          },
+        });
+      });
+    </script>
   </body>
 </html>
