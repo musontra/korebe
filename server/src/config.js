@@ -35,3 +35,28 @@ export const BOUNCE_RULES = {
 export function bouncesForAliveCount(aliveCount) {
   return BOUNCE_RULES[aliveCount] ?? BOUNCE_RULES[2];
 }
+
+// --- Players (added in Phase 1) ---
+export const PLAYERS_PER_MATCH = 3;
+export const PLAYER_RADIUS = 25; // world units
+export const PLAYER_MOVE_SPEED = 6; // world units per tick at full input magnitude
+
+// --- Bullet ---
+export const BULLET_RADIUS = 8; // world units
+export const BULLET_SPEED = 18; // world units per tick (< PLAYER_RADIUS to limit tunneling)
+
+// --- Phase pacing (ticks) ---
+export const ROUND_START_TICKS = 30; // ~1s preparation before MovementPhase
+// If the blind player does not shoot within this window, the round ends with NO elimination.
+// 300 ticks = 10s, symmetric with MovementPhase.
+export const SHOOTING_PHASE_TIMEOUT_TICKS = 300;
+
+// --- Sound ---
+// Max +/- world-unit jitter added to a sound's position before it is sent to the blind player,
+// so the blind player only gets an APPROXIMATE location.
+export const SOUND_POSITION_NOISE = 60;
+
+// --- Blind selection weights ---
+// Previous blind player gets a significantly lower chance of being picked again.
+export const NORMAL_BLIND_WEIGHT = 1.0;
+export const PREV_BLIND_WEIGHT = 0.15;

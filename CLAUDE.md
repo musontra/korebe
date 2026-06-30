@@ -53,4 +53,4 @@ client/src: pages/ (Astro + Stitch UI); game/{net,state,input,renderer,canvas,vi
 - Before large/structural changes, propose first and wait for confirmation.
 - Add clear comments explaining architecture decisions, especially around the authoritative model.
 - If something is unspecified, pick the simplest safe option and note it.
-- Communicate with the developer in TURKISH. All explanations, summaries, plans, and PR descriptions should be written in Turkish (code, comments, identifiers, and commit message types stay in English).
+- Communicate with the developer in TURKISH. All explanations, summaries, plans, and progress reports must be in Turkish. Code, file names, code comments, and commit messages stay in English.

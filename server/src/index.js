@@ -1,23 +1,30 @@
-// Server entry point. Starts the WebSocket server and logs new connections.
-// Phase 0: no game logic, no rooms — just prove the socket comes up and accepts clients.
-
+// Server entry point. Accepts WebSocket connections; the first message must be JOIN {code}.
+// After a valid JOIN the connection is handed to its room, which owns it for the rest of the match.
 import { WebSocketServer } from "ws";
 import { DEFAULT_PORT } from "./config.js";
+import { getOrCreateRoom } from "./rooms.js";
+import { ClientMessageType, parse } from "./net/messages.js";
 
 const PORT = Number(process.env.PORT) || DEFAULT_PORT;
-
 const wss = new WebSocketServer({ port: PORT });
 
 wss.on("listening", () => {
   console.log(`[server] WebSocket server listening on ws://localhost:${PORT}`);
 });
 
-wss.on("connection", (socket, req) => {
-  console.log(`[server] new connection from ${req.socket.remoteAddress}`);
+wss.on("connection", (ws) => {
+  console.log("[server] new connection (awaiting JOIN)");
 
-  socket.on("close", () => {
-    console.log("[server] connection closed");
-  });
+  // Handle only the JOIN handshake here; the room takes over message handling afterwards.
+  const onJoin = (raw) => {
+    const msg = parse(raw);
+    if (msg && msg.type === ClientMessageType.JOIN && msg.code) {
+      ws.off("message", onJoin);
+      const room = getOrCreateRoom(String(msg.code));
+      room.addConnection(ws);
+    }
+  };
+  ws.on("message", onJoin);
 });
 
 wss.on("error", (err) => {
