@@ -56,15 +56,17 @@ export function createGameLoop(room) {
 
       case Phase.BULLET_SIM: {
         const res = advanceBullet(state, state.blindId);
-        if (res.bounces > 0) {
-          log(`[bullet] bounce x${res.bounces}, remaining=${state.bouncesRemaining}/${state.maxBounces}`);
+        // Log each completed bounce as N/max while the budget still holds.
+        if (res.bounces > 0 && state.bouncesRemaining >= 0) {
+          const used = state.maxBounces - state.bouncesRemaining;
+          log(`[bullet] bounce ${used}/${state.maxBounces}`);
         }
         if (res.eliminatedId) {
           state.players[res.eliminatedId].alive = false;
           log(`[hit] ${res.eliminatedId} eliminated`);
           finishRound(state, res.eliminatedId, log);
         } else if (res.bulletGone) {
-          log(`[bullet] gone (no hit)`);
+          log(`[bullet] gone (bounce limit reached, no hit)`);
           finishRound(state, null, log);
         }
         break;
