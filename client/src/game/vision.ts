@@ -7,7 +7,9 @@ import type { Snapshot, SoundView } from "./state";
 // --- Tunables (adjust gameplay feel from here; do not hunt through the code) ---
 const VISION_RADIUS = 180; // px: outer radius of the blind player's visible circle
 const VISION_INNER = 45; // px: fully-clear inner radius before the darkness gradient begins
-const DARKNESS_ALPHA = 0.93; // opacity of the darkness outside the vision circle
+// MUST stay 1.0: outside the vision circle the overlay is fully opaque, so NOTHING (player circle,
+// ring, or label) leaks through the darkness for the blind player.
+const OVERLAY_MAX_ALPHA = 1.0;
 const RIPPLE_LIFETIME_MS = 700; // how long a sound ripple stays on screen
 const RIPPLE_EXPAND_SPEED = 0.12; // px per ms: how fast a ripple radius grows
 const RIPPLE_START_RADIUS = 6; // px: ripple radius at birth
@@ -54,10 +56,12 @@ export function drawVisionOverlay(ctx: CanvasRenderingContext2D, snap: Snapshot)
   if (me) {
     const cx = worldToPixel(me.pos.x);
     const cy = worldToPixel(me.pos.y);
-    // Single fillRect with a radial gradient: clear at the center, opaque dark outside the circle.
+    // Single fillRect with a radial gradient: clear center -> soft fade -> FULLY BLACK at the rim and
+    // beyond. The last stop is opaque (OVERLAY_MAX_ALPHA = 1.0) so the area outside the vision circle
+    // is total darkness; no distant player silhouette or label can be read through it.
     const g = ctx.createRadialGradient(cx, cy, VISION_INNER, cx, cy, VISION_RADIUS);
     g.addColorStop(0, "rgba(0,0,0,0)");
-    g.addColorStop(1, `rgba(0,0,0,${DARKNESS_ALPHA})`);
+    g.addColorStop(1, `rgba(0,0,0,${OVERLAY_MAX_ALPHA})`);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
   }
