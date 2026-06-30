@@ -1,0 +1,14 @@
+{
+  "name": "korebe-server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Server-authoritative game server for korebe (blind tag) — Phase 0 skeleton.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
