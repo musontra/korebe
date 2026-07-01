@@ -1,11 +1,14 @@
 // A single match instance: holds connected players, owns its game loop and authoritative state.
 // Buffers per-player input (latest-wins) and exposes drainInputs()/connections() to the game loop.
-import { createGameState, addPlayer } from "./state/gameState.js";
+import { createGameState, addPlayer, aliveIds, Phase } from "./state/gameState.js";
 import { createGameLoop } from "./gameLoop.js";
+import { finishRound } from "./state/stateMachine.js";
 import { ClientMessageType, ServerMessageType, parse, safeSend } from "./net/messages.js";
 import { PLAYERS_PER_MATCH } from "./config.js";
 
-export function createRoom(code) {
+// onEmpty is called once the last connection leaves, so the registry can drop this room and
+// its code can be reused. Passed in (instead of importing rooms.js) to avoid a circular import.
+export function createRoom(code, onEmpty) {
   const state = createGameState();
   const conns = new Map(); // id -> ws
   let movementInputs = {}; // id -> {dx,dy}  (consumed each tick)
@@ -44,11 +47,34 @@ export function createRoom(code) {
     // only from the blind player in ShootingPhase). Buffering both here is harmless.
   }
 
+  const log = (m) => console.log(`[room ${code}] ${m}`);
+
   function handleClose(id) {
-    console.log(`[room ${code}] ${id} disconnected`);
-    if (state.players[id]) state.players[id].alive = false;
+    log(`${id} disconnected`);
     conns.delete(id);
-    if (conns.size === 0 && loop) loop.stop();
+
+    if (!started) {
+      // (C) Lobby: remove the player entirely (no ghost lingering in state) and refresh the
+      // waiting count so remaining lobby clients drop e.g. 2/3 -> 1/3.
+      delete state.players[id];
+      broadcastRaw({ type: ServerMessageType.WAITING, count: conns.size, need: PLAYERS_PER_MATCH });
+    } else {
+      // Mid-match: treat the disconnect as an elimination.
+      if (state.players[id]) state.players[id].alive = false;
+      // (B) If only one player is left, end the game IMMEDIATELY rather than waiting out the
+      // current phase timeout. This is the alive<=1 branch — distinct from the accepted
+      // blind-disconnect 10s timeout (which only applies while >1 players remain).
+      if (aliveIds(state).length <= 1 && state.phase !== Phase.GAME_END) {
+        finishRound(state, null, log);
+      }
+    }
+
+    // (D) Once the last connection is gone, stop the loop and drop the room so its code is
+    // free to host a brand-new match (fixes the "match already started" lock on reuse).
+    if (conns.size === 0) {
+      if (loop) loop.stop();
+      onEmpty?.();
+    }
   }
 
   function startMatch() {
