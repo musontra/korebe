@@ -2,7 +2,7 @@
 // Buffers per-player input (latest-wins) and exposes drainInputs()/connections() to the game loop.
 import { createGameState, addPlayer } from "./state/gameState.js";
 import { createGameLoop } from "./gameLoop.js";
-import { ClientMessageType, ServerMessageType, serialize, parse } from "./net/messages.js";
+import { ClientMessageType, ServerMessageType, parse, safeSend } from "./net/messages.js";
 import { PLAYERS_PER_MATCH } from "./config.js";
 
 export function createRoom(code) {
@@ -29,7 +29,7 @@ export function createRoom(code) {
   };
 
   function broadcastRaw(obj) {
-    for (const ws of conns.values()) ws.send(serialize(obj));
+    for (const ws of conns.values()) safeSend(ws, obj);
   }
 
   function handleMessage(id, raw) {
@@ -62,19 +62,23 @@ export function createRoom(code) {
   // Called by index.js once a connection has sent a valid JOIN for this room code.
   room.addConnection = function addConnection(ws) {
     if (started) {
-      ws.send(serialize({ type: ServerMessageType.ERROR, msg: "match already started" }));
+      safeSend(ws, { type: ServerMessageType.ERROR, msg: "match already started" });
       ws.close();
       return;
     }
     const id = "P" + nextPlayerNum++;
     conns.set(id, ws);
     addPlayer(state, id);
-    ws.send(serialize({ type: ServerMessageType.JOINED, playerId: id, roomCode: code }));
+    safeSend(ws, { type: ServerMessageType.JOINED, playerId: id, roomCode: code });
     broadcastRaw({ type: ServerMessageType.WAITING, count: conns.size, need: PLAYERS_PER_MATCH });
     console.log(`[room ${code}] ${id} joined (${conns.size}/${PLAYERS_PER_MATCH})`);
 
     ws.on("message", (raw) => handleMessage(id, raw));
     ws.on("close", () => handleClose(id));
+    // Without an 'error' listener, a socket error (e.g. ECONNRESET on an abrupt disconnect)
+    // becomes an uncaught exception and crashes the whole server process. Swallow + log;
+    // the paired 'close' handler still runs and cleans the player up.
+    ws.on("error", (err) => console.error(`[room ${code}] ${id} socket error:`, err?.message ?? err));
 
     if (conns.size === PLAYERS_PER_MATCH) startMatch();
   };

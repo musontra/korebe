@@ -17,3 +17,15 @@ the room state at `GameEnd`, or accept re-joins after the match ends. Touches `r
 
 **Why deferred:** doing it during Phase 4 (UI) would break the "no server changes this phase" rule and
 the phase-by-phase discipline. Backlog until after deploy.
+
+## Phase 5.x — Blind-disconnect fast-cut
+
+**Current (Phase 5):** if the blind player disconnects mid-`ShootingPhase`, no shoot input ever
+arrives, so the round just waits out `SHOOTING_PHASE_TIMEOUT_TICKS` (~10s) and then ends with no
+elimination. Functional, not frozen — just a rare up-to-10s delay.
+
+**To do (optional):** in `handleClose`, if the disconnecting player is the current `blindId` and we
+are in `ShootingPhase`, end the round immediately instead of waiting for the timeout.
+
+**Why deferred:** accepted for V1. It would add a new code path into the state machine, against the
+Phase 5 principle of "minimum touch to the sim". Not worth it for a rare 10s delay.

@@ -1,7 +1,7 @@
 // Snapshot broadcasting: send the authoritative state snapshot to all players in a room.
 // Each snapshot is PERSONALIZED: it tells the receiving player whether THEY are the blind one,
 // and sound events are included ONLY for the blind player (with positional noise added here).
-import { ServerMessageType, serialize } from "./messages.js";
+import { ServerMessageType, safeSend } from "./messages.js";
 import { SOUND_POSITION_NOISE } from "../config.js";
 
 function round2(n) {
@@ -52,6 +52,6 @@ export function broadcastSnapshots(room) {
       snapshot.sounds = [];
     }
 
-    ws.send(serialize(snapshot));
+    safeSend(ws, snapshot);
   }
 }

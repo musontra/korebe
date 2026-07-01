@@ -27,3 +27,15 @@ export function parse(raw) {
 export function serialize(obj) {
   return JSON.stringify(obj);
 }
+
+// Resilience (Phase 5): a socket can close between a readyState check and the actual send,
+// so ws.send() may throw. This tick loop broadcasts to every connection every tick; one dead
+// socket must NEVER crash the loop or the room. Swallow the error and let the 'close' handler
+// clean the connection up. The authoritative sim is unaffected.
+export function safeSend(ws, obj) {
+  try {
+    ws.send(serialize(obj));
+  } catch (err) {
+    console.error("[net] send failed:", err?.message ?? err);
+  }
+}

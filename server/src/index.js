@@ -15,6 +15,11 @@ wss.on("listening", () => {
 wss.on("connection", (ws) => {
   console.log("[server] new connection (awaiting JOIN)");
 
+  // Guard the pre-JOIN window too: a socket can error before a room adopts it (which is where
+  // the room's own 'error' listener gets attached). Without this, an early ECONNRESET would be
+  // an uncaught exception and crash the server.
+  ws.on("error", (err) => console.error("[server] connection error:", err?.message ?? err));
+
   // Handle only the JOIN handshake here; the room takes over message handling afterwards.
   const onJoin = (raw) => {
     const msg = parse(raw);
