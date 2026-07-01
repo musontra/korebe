@@ -1,6 +1,6 @@
 ---
-// Phase 4b (C1): Antigravity Aura landing + lobby screens (Stitch design, adapted to v4 tokens).
-// #game (canvas + HUD) is carried over UNCHANGED from Phase 3; HUD restyle comes in C2.
+// Phase 4b (C2): Antigravity Aura HUD + game-over screen. Landing/lobby from C1 unchanged.
+// Game canvas + orchestration script unchanged; only the HUD markup is restyled and gameOver added.
 import "../styles/global.css";
 ---
 
@@ -12,7 +12,7 @@ import "../styles/global.css";
     <title>Antigravity</title>
   </head>
   <body class="min-h-screen bg-background text-on-surface flex items-center justify-center overflow-hidden">
-    <!-- ============ LANDING (room code entry) ============ -->
+    <!-- ============ LANDING ============ -->
     <div id="landing" class="relative min-h-screen w-full flex flex-col items-center justify-center px-gutter">
       <section class="relative z-10 w-full max-w-2xl text-center space-y-void-lg">
         <div class="space-y-6">
@@ -21,19 +21,11 @@ import "../styles/global.css";
         </div>
         <div class="flex flex-col items-center space-y-12 w-full max-w-sm mx-auto">
           <div class="w-full relative group">
-            <input
-              id="codeInput"
-              type="text"
-              value="ROOM1"
-              placeholder="Oda kodu"
-              class="w-full bg-transparent border-b border-white/20 px-0 py-4 text-center font-headline-md text-headline-md focus:border-primary-container focus:border-b-2 placeholder:text-secondary-container outline-none uppercase tracking-[0.2em] transition-all duration-500"
-            />
+            <input id="codeInput" type="text" value="ROOM1" placeholder="Oda kodu"
+              class="w-full bg-transparent border-b border-white/20 px-0 py-4 text-center font-headline-md text-headline-md focus:border-primary-container focus:border-b-2 placeholder:text-secondary-container outline-none uppercase tracking-[0.2em] transition-all duration-500" />
             <div class="absolute bottom-0 left-1/2 w-0 h-[2px] bg-primary-container group-focus-within:w-full group-focus-within:left-0 transition-all duration-700"></div>
           </div>
-          <button
-            id="joinBtn"
-            class="group relative w-full overflow-hidden px-12 py-5 bg-primary-container text-white font-label-sm text-label-sm uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-95 transition-all duration-300"
-          >
+          <button id="joinBtn" class="group relative w-full overflow-hidden px-12 py-5 bg-primary-container text-white font-label-sm text-label-sm uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-95 transition-all duration-300">
             <span class="relative z-10">Katıl</span>
           </button>
           <p id="status" class="font-label-sm text-label-sm text-on-surface-variant uppercase opacity-70 tracking-widest h-4"></p>
@@ -41,7 +33,7 @@ import "../styles/global.css";
       </section>
     </div>
 
-    <!-- ============ LOBBY (waiting for players) ============ -->
+    <!-- ============ LOBBY ============ -->
     <div id="lobby" class="hidden relative min-h-screen w-full flex flex-col items-center justify-center px-container-padding py-void-lg">
       <div class="flex flex-col items-center text-center space-y-void-lg">
         <div class="space-y-gutter">
@@ -56,17 +48,73 @@ import "../styles/global.css";
       </div>
     </div>
 
-    <!-- ============ GAME (canvas + HUD) — UNCHANGED from Phase 3 ============ -->
+    <!-- ============ GAME (canvas + Antigravity HUD) ============ -->
     <div id="game" class="hidden relative">
-      <canvas id="canvas" class="block border border-neutral-700"></canvas>
-      <div class="absolute inset-0 pointer-events-none select-none">
-        <div class="absolute top-2 left-1/2 -translate-x-1/2 text-center">
-          <div id="hudPhase" class="text-sm font-semibold text-neutral-100"></div>
-          <div id="hudTimer" class="text-3xl font-bold text-neutral-50 leading-tight"></div>
+      <canvas id="canvas" class="block"></canvas>
+
+      <!-- HUD layer: transparent, pointer-events-none so canvas clicks (shooting) pass through -->
+      <div class="vignette-alert absolute inset-0 pointer-events-none select-none">
+        <!-- Top center: phase + countdown + blind badge + round-end toast -->
+        <div class="absolute top-0 left-0 w-full flex flex-col items-center pt-void-lg">
+          <div class="flex flex-col items-center">
+            <span id="hudPhase" class="font-label-sm text-label-sm text-on-surface-variant mb-1 tracking-[0.3em] uppercase"></span>
+            <span id="hudTimer" class="font-display-lg text-display-lg text-on-surface"></span>
+          </div>
+          <div id="hudBlind" class="hidden mt-8">
+            <div class="px-6 py-2 border border-primary-container bg-primary-container/10 backdrop-blur-[2px]">
+              <span class="font-headline-md text-headline-md text-primary-container uppercase glitch-effect tracking-[0.2em]">KÖREBESİN</span>
+            </div>
+          </div>
+          <div id="roundEnd" class="hidden mt-4 px-4 py-1 bg-primary-container/5 backdrop-blur-[2px] border-x border-primary-container/20">
+            <span id="roundEndMsg" class="font-label-sm text-label-sm text-on-surface tracking-[0.3em] uppercase"></span>
+          </div>
         </div>
-        <div id="hudBlind" class="hidden absolute top-2 right-2 px-3 py-1 rounded bg-red-600 text-white text-sm font-bold tracking-wide">KÖREBESİN</div>
-        <div id="hudAlive" class="absolute bottom-2 left-2 text-sm text-neutral-200"></div>
-        <div id="hudBounce" class="hidden absolute bottom-2 right-2 text-sm font-semibold text-yellow-300"></div>
+
+        <!-- Top-left brand -->
+        <div class="absolute top-gutter left-gutter">
+          <span class="font-label-sm text-label-sm text-primary uppercase tracking-[0.4em]">BLIND ARENA</span>
+        </div>
+
+        <!-- Bottom left: remaining players -->
+        <div class="absolute bottom-void-lg left-container-padding">
+          <div class="flex items-baseline space-x-2">
+            <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">KALAN:</span>
+            <span id="hudAlive" class="font-headline-md text-headline-md text-on-surface"></span>
+          </div>
+        </div>
+
+        <!-- Bottom right: bounce count (blind + shooting/bullet only) -->
+        <div id="hudBounce" class="hidden absolute bottom-void-lg right-container-padding text-right">
+          <div class="flex items-baseline space-x-2 justify-end">
+            <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">SEKME:</span>
+            <span id="hudBounceVal" class="font-headline-md text-headline-md text-on-surface"></span>
+          </div>
+        </div>
+
+        <!-- Eliminated banner (you are out, spectating) -->
+        <div id="eliminatedBanner" class="hidden absolute bottom-12 left-0 w-full flex justify-center">
+          <div class="w-full py-2 bg-black/10 backdrop-blur-[1px] border-y border-white/5 flex justify-center">
+            <span class="font-label-sm text-label-sm text-primary-container uppercase tracking-[0.4em] opacity-80">ELENDİN — İZLEYİP OYNUYORSUN</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ GAME OVER (win/lose, single container) ============ -->
+    <div id="gameOver" class="hidden absolute inset-0 z-50 bg-background flex items-center justify-center p-container-padding">
+      <div class="flex flex-col items-center text-center max-w-2xl w-full">
+        <div class="mb-void-lg space-y-4">
+          <h1 id="gameOverTitle" class="font-display-lg text-display-lg text-on-surface tracking-[0.25em] uppercase"></h1>
+          <div class="flex items-center justify-center gap-3">
+            <div class="h-[1px] w-12 bg-white/20"></div>
+            <p id="gameOverResult" class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.3em]"></p>
+            <div class="h-[1px] w-12 bg-white/20"></div>
+          </div>
+        </div>
+        <div class="flex flex-col md:flex-row gap-6 w-full max-w-md">
+          <button id="playAgainBtn" class="flex-1 bg-primary-container text-white py-5 px-8 font-label-sm text-label-sm uppercase tracking-widest border border-primary-container active:scale-95 transition-all duration-300">TEKRAR OYNA</button>
+          <button id="exitBtn" class="flex-1 border border-white/20 text-on-surface py-5 px-8 font-label-sm text-label-sm uppercase tracking-widest hover:bg-white/5 active:scale-95 transition-all duration-300">ÇIK</button>
+        </div>
       </div>
     </div>
 
@@ -91,7 +139,6 @@ import "../styles/global.css";
 
       let entered = false;
 
-      // Render N filled + (need-N) empty player slots (real waiting state, no fake data).
       function renderSlots(count: number, need: number) {
         let html = "";
         for (let i = 0; i < need; i++) {
@@ -122,9 +169,7 @@ import "../styles/global.css";
         lobby.classList.remove("hidden");
         renderSlots(0, 3);
         connect(code, {
-          onJoined: (id) => {
-            status.textContent = `${id}`;
-          },
+          onJoined: (id) => { status.textContent = `${id}`; },
           onWaiting: (count, need) => {
             lobbyWaiting.textContent = `${count}/${need} OYUNCU BEKLENİYOR`;
             renderSlots(count, need);
@@ -134,12 +179,8 @@ import "../styles/global.css";
             ingestSounds(snap.sounds);
             updateHud(snap);
           },
-          onError: (m) => {
-            status.textContent = `HATA: ${m}`;
-          },
-          onClose: () => {
-            status.textContent = "BAĞLANTI KESİLDİ";
-          },
+          onError: (m) => { status.textContent = `HATA: ${m}`; },
+          onClose: () => { status.textContent = "BAĞLANTI KESİLDİ"; },
         });
       });
     </script>

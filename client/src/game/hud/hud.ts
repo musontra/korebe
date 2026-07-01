@@ -20,8 +20,10 @@ function el(id: string): HTMLElement | null {
   return document.getElementById(id);
 }
 
-function secs(ticks: number): string {
-  return Math.max(0, Math.ceil(ticks / TICK_RATE)) + "s";
+// Countdown as M:SS (phases are always under a minute, so minutes stay 0).
+function fmt(ticks: number): string {
+  const s = Math.max(0, Math.ceil(ticks / TICK_RATE));
+  return "0:" + (s < 10 ? "0" + s : String(s));
 }
 
 export function updateHud(snap: Snapshot): void {
@@ -41,8 +43,8 @@ export function updateHud(snap: Snapshot): void {
 
   if (timerEl) {
     let remain = "";
-    if (snap.phase === "MovementPhase") remain = secs(MOVEMENT_PHASE_TICKS - snap.tick);
-    else if (snap.phase === "ShootingPhase") remain = secs(SHOOTING_PHASE_TIMEOUT_TICKS - snap.tick);
+    if (snap.phase === "MovementPhase") remain = fmt(MOVEMENT_PHASE_TICKS - snap.tick);
+    else if (snap.phase === "ShootingPhase") remain = fmt(SHOOTING_PHASE_TIMEOUT_TICKS - snap.tick);
     timerEl.textContent = remain;
   }
 
@@ -50,12 +52,15 @@ export function updateHud(snap: Snapshot): void {
 
   if (aliveEl) {
     const aliveCount = Object.values(snap.players).filter((p) => p.alive).length;
-    aliveEl.textContent = `Kalan: ${aliveCount}`;
+    aliveEl.textContent = String(aliveCount); // "KALAN:" label is static in the markup
   }
 
+  const bounceValEl = el("hudBounceVal");
   if (bounceEl) {
     const show = isBlind && (snap.phase === "ShootingPhase" || snap.phase === "BulletSimulation");
-    bounceEl.classList.toggle("hidden", !show);
-    bounceEl.textContent = `Sekme: ${snap.bouncesRemaining}/${snap.maxBounces}`;
+    bounceEl.classList.toggle("hidden", !show); // toggles the whole container (label + value)
+  }
+  if (bounceValEl) {
+    bounceValEl.textContent = `${snap.bouncesRemaining}/${snap.maxBounces}`;
   }
 }
