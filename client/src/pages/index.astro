@@ -183,6 +183,10 @@ import "../styles/global.css";
           onClose: () => { status.textContent = "BAĞLANTI KESİLDİ"; },
         });
       });
+
+      // Game-over buttons: V1 both reload to an empty lobby (true rematch is backlog).
+      document.getElementById("playAgainBtn")!.addEventListener("click", () => location.reload());
+      document.getElementById("exitBtn")!.addEventListener("click", () => location.reload());
     </script>
   </body>
 </html>
