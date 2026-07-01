@@ -1,2 +1,81 @@
-/* Tailwind v4 entrypoint. Imported by pages that need styling. */
+/* Self-hosted Inter (weights used by the Stitch exports). No CDN dependency. */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/inter/800.css";
 @import "tailwindcss";
+
+/* Antigravity Aura design tokens — ONLY the tokens actually used by the Stitch exports,
+   translated from Stitch's v3 tailwind.config into Tailwind v4 @theme. Unused palette omitted. */
+@theme {
+  /* colors */
+  --color-background: #0d0d0d;
+  --color-on-surface: #e5e2e1;
+  --color-on-surface-variant: #e7bcba;
+  --color-primary: #ffb3af;
+  --color-primary-container: #d90429;
+  --color-secondary-container: #474746;
+
+  /* fonts (all Inter in this design) */
+  --font-display-lg: "Inter", sans-serif;
+  --font-headline-md: "Inter", sans-serif;
+  --font-label-sm: "Inter", sans-serif;
+
+  /* font sizes + their line-height / letter-spacing / weight */
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: 0.1em;
+  --text-display-lg--font-weight: 700;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 1.2;
+  --text-headline-md--letter-spacing: 0.05em;
+  --text-headline-md--font-weight: 600;
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 1;
+  --text-label-sm--letter-spacing: 0.2em;
+  --text-label-sm--font-weight: 600;
+
+  /* spacing */
+  --spacing-void-lg: 80px;
+  --spacing-container-padding: 40px;
+  --spacing-gutter: 16px;
+}
+
+/* Inter as the default sans across the app */
+:root {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* --- Animations carried over from Stitch inline <style> (only the used ones) --- */
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+.glitch-effect {
+  animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+@keyframes pulse-op {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+.pulse-subtle {
+  animation: pulse-op 2s infinite ease-in-out;
+}
+
+.vignette-alert {
+  box-shadow: inset 0 0 150px rgba(217, 4, 41, 0.15);
+}
+
+/* Full-bleed transparent HUD layer with a soft radial darkening at the edges */
+.hud-overlay {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  pointer-events: none;
+  background: radial-gradient(circle, transparent 40%, rgba(13, 13, 13, 0.4) 100%);
+}
