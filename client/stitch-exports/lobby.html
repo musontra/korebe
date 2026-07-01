@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ANTIGRAVITY | LOBBY</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#5d3f3d",
+                    "tertiary-fixed-dim": "#80cfff",
+                    "surface-container-low": "#1c1b1b",
+                    "primary-container": "#d90429",
+                    "surface-container-high": "#2a2a2a",
+                    "error": "#ffb4ab",
+                    "tertiary-container": "#0074a0",
+                    "on-secondary-fixed-variant": "#474746",
+                    "on-primary-fixed-variant": "#930018",
+                    "primary-fixed-dim": "#ffb3af",
+                    "surface-tint": "#ffb3af",
+                    "on-secondary-container": "#b7b5b4",
+                    "tertiary-fixed": "#c5e7ff",
+                    "inverse-primary": "#bf0022",
+                    "on-secondary": "#313030",
+                    "primary": "#ffb3af",
+                    "on-background": "#e5e2e1",
+                    "surface-dim": "#131313",
+                    "surface-container-highest": "#353534",
+                    "on-primary-container": "#ffeae8",
+                    "secondary-container": "#474746",
+                    "surface-container": "#201f1f",
+                    "on-primary-fixed": "#410005",
+                    "on-error-container": "#ffdad6",
+                    "surface": "#131313",
+                    "on-surface-variant": "#e7bcba",
+                    "on-surface": "#e5e2e1",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "on-tertiary": "#00344b",
+                    "error-container": "#93000a",
+                    "outline": "#ae8885",
+                    "surface-bright": "#3a3939",
+                    "primary-fixed": "#ffdad7",
+                    "on-primary": "#68000e",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-variant": "#353534",
+                    "on-tertiary-container": "#e0f1ff",
+                    "on-tertiary-fixed": "#001e2d",
+                    "surface-container-lowest": "#0e0e0e",
+                    "secondary": "#c8c6c5",
+                    "inverse-on-surface": "#313030",
+                    "tertiary": "#80cfff",
+                    "secondary-fixed": "#e5e2e1",
+                    "background": "#131313",
+                    "on-tertiary-fixed-variant": "#004c6b",
+                    "on-error": "#690005"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "gutter": "16px",
+                    "void-lg": "80px",
+                    "container-padding": "40px"
+            },
+            "fontFamily": {
+                    "body-rt": ["Inter", "sans-serif"],
+                    "label-sm": ["Inter", "sans-serif"],
+                    "display-lg-mobile": ["Inter", "sans-serif"],
+                    "display-lg": ["Inter", "sans-serif"],
+                    "headline-md": ["Inter", "sans-serif"],
+                    "mono": ["'JetBrains Mono'", "monospace"]
+            },
+            "fontSize": {
+                    "body-rt": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.2em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.1", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0D0D0D;
+            overflow: hidden;
+            color: #e5e2e1;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .ghost-border {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .crimson-border {
+            border: 1px solid #D90429;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(217, 4, 41, 0.1);
+            position: absolute;
+            top: 0;
+            z-index: 5;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
+        @keyframes pulse-crimson {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .animate-pulse-custom {
+            animation: pulse-crimson 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .void-bg {
+            background: radial-gradient(circle at center, #131313 0%, #0D0D0D 100%);
+        }
+    </style>
+</head>
+<body class="font-body-rt flex flex-col min-h-screen void-bg relative">
+<div class="scanline"></div>
+<!-- Navigation Shell -->
+<nav class="flex justify-between items-center w-full px-container-padding py-gutter max-w-full bg-background dark:bg-background border-b border-white/10 fixed top-0 z-50">
+<div class="font-display-lg text-display-lg font-bold text-primary dark:text-primary uppercase tracking-widest">
+            ANTIGRAVITY
+        </div>
+<div class="flex gap-gutter items-center">
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 duration-200">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</nav>
+<!-- Main Lobby Content -->
+<main class="flex-grow flex flex-col items-center justify-center px-container-padding py-void-lg relative z-10">
+<!-- Sensory Deprivation Background Effect -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+
+</div>
+<div class="flex flex-col items-center text-center space-y-void-lg">
+<!-- Room Info -->
+<div class="space-y-gutter">
+<p class="font-label-sm text-label-sm uppercase tracking-widest text-secondary opacity-60">
+                    SİSTEM ERİŞİMİ ONAYLANDI
+                </p>
+<h1 class="font-mono text-[48px] md:text-[64px] font-bold text-on-surface tracking-tighter">
+                    ODA KODU: <span class="text-primary-container">XV7-9R</span>
+</h1>
+<div class="inline-flex items-center gap-2 px-4 py-1 ghost-border rounded-full">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-label-sm text-label-sm uppercase text-on-surface">2/3 OYUNCU BEKLENİYOR</span>
+</div>
+</div>
+<!-- Player Slots -->
+<div class="flex gap-12 md:gap-24 items-center justify-center">
+<!-- Player 1: Filled -->
+<div class="group relative">
+<div class="w-24 h-24 md:w-32 md:h-32 bg-primary-container crimson-border flex items-center justify-center relative overflow-hidden transition-all duration-500 group-hover:scale-105">
+<span class="material-symbols-outlined text-[48px] text-white">person</span>
+<div class="absolute bottom-1 right-1">
+<span class="material-symbols-outlined text-sm text-white" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<p class="mt-4 font-label-sm text-label-sm uppercase text-primary tracking-widest">HOST</p>
+</div>
+<!-- Player 2: Filled -->
+<div class="group relative">
+<div class="w-24 h-24 md:w-32 md:h-32 bg-primary-container crimson-border flex items-center justify-center relative overflow-hidden transition-all duration-500 group-hover:scale-105">
+<span class="material-symbols-outlined text-[48px] text-white">person</span>
+<div class="absolute bottom-1 right-1">
+<span class="material-symbols-outlined text-sm text-white" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<p class="mt-4 font-label-sm text-label-sm uppercase text-on-surface tracking-widest">READY</p>
+</div>
+<!-- Player 3: Empty/Ghost -->
+<div class="group relative">
+<div class="w-24 h-24 md:w-32 md:h-32 ghost-border flex items-center justify-center relative overflow-hidden transition-all duration-500">
+<div class="absolute inset-0 bg-white/5 animate-pulse-custom"></div>
+<span class="material-symbols-outlined text-[48px] text-on-surface-variant/30">person_add</span>
+</div>
+<p class="mt-4 font-label-sm text-label-sm uppercase text-on-surface-variant tracking-widest animate-pulse">ARANIYOR...</p>
+</div>
+</div>
+<!-- Lobby Status Details -->
+<div class="max-w-md w-full p-gutter ghost-border bg-surface-container-lowest/50 backdrop-blur-sm">
+<div class="flex justify-between border-b border-white/5 py-2">
+<span class="font-label-sm text-label-sm text-secondary uppercase">SUNUCU</span>
+<span class="font-label-sm text-label-sm text-on-surface uppercase">EUROPE-VOID-04</span>
+</div>
+<div class="flex justify-between border-b border-white/5 py-2">
+<span class="font-label-sm text-label-sm text-secondary uppercase">MOD</span>
+<span class="font-label-sm text-label-sm text-on-surface uppercase">BLIND TAG</span>
+</div>
+<div class="flex justify-between py-2">
+<span class="font-label-sm text-label-sm text-secondary uppercase">GECİKME</span>
+<span class="font-label-sm text-label-sm text-tertiary uppercase">14MS</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="flex flex-col md:flex-row justify-between items-center w-full px-container-padding py-void-lg gap-gutter bg-background dark:bg-background border-t border-white/5 fixed bottom-0 z-50">
+<div class="font-label-sm text-label-sm uppercase tracking-widest text-secondary dark:text-secondary opacity-80">
+            © 2024 ANTIGRAVITY ARENA. SENSORY DEPRIVATION PROTOCOL ACTIVE.
+        </div>
+<div class="flex gap-gutter items-center">
+<a class="font-label-sm text-label-sm uppercase tracking-widest text-secondary hover:text-on-surface transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">TERMINAL</a>
+<span class="text-white/10">|</span>
+<a class="font-label-sm text-label-sm uppercase tracking-widest text-secondary hover:text-on-surface transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">SYSTEM_LOGS</a>
+<span class="text-white/10">|</span>
+<a class="font-label-sm text-label-sm uppercase tracking-widest text-primary hover:text-on-surface transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">VOID_STATUS</a>
+</div>
+</footer>
+<script>
+        // Micro-interaction for room code click
+        const roomCode = document.querySelector('h1 span');
+        if(roomCode) {
+            roomCode.addEventListener('click', () => {
+                navigator.clipboard.writeText(roomCode.innerText);
+                const originalText = roomCode.innerText;
+                roomCode.innerText = "KOPYALANDI";
+                roomCode.classList.add('text-tertiary');
+                setTimeout(() => {
+                    roomCode.innerText = originalText;
+                    roomCode.classList.remove('text-tertiary');
+                }, 2000);
+            });
+            roomCode.style.cursor = 'pointer';
+        }
+
+        // Random glitch effect for the ghost slot
+        setInterval(() => {
+            const ghost = document.querySelector('.ghost-border .animate-pulse-custom');
+            if (ghost) {
+                ghost.style.opacity = Math.random() > 0.9 ? '0.8' : '0.3';
+                setTimeout(() => {
+                    ghost.style.opacity = '0.3';
+                }, 50);
+            }
+        }, 3000);
+    </script>
+</body></html>

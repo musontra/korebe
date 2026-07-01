@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#5d3f3d",
+                    "outline": "#ae8885",
+                    "on-primary-fixed-variant": "#930018",
+                    "on-secondary-container": "#b7b5b4",
+                    "on-tertiary-fixed-variant": "#004c6b",
+                    "tertiary-fixed": "#c5e7ff",
+                    "on-tertiary-container": "#e0f1ff",
+                    "surface-dim": "#131313",
+                    "tertiary-fixed-dim": "#80cfff",
+                    "inverse-primary": "#bf0022",
+                    "tertiary": "#80cfff",
+                    "on-primary-fixed": "#410005",
+                    "surface-tint": "#ffb3af",
+                    "on-background": "#e5e2e1",
+                    "secondary": "#c8c6c5",
+                    "surface-container": "#201f1f",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface": "#131313",
+                    "on-primary": "#68000e",
+                    "on-tertiary-fixed": "#001e2d",
+                    "inverse-on-surface": "#313030",
+                    "surface-bright": "#3a3939",
+                    "surface-container-highest": "#353534",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "background": "transparent",
+                    "on-tertiary": "#00344b",
+                    "on-surface": "#e5e2e1",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed-dim": "#ffb3af",
+                    "primary-fixed": "#ffdad7",
+                    "primary": "#ffb3af",
+                    "surface-container-low": "#1c1b1b",
+                    "on-primary-container": "#ffeae8",
+                    "on-error": "#690005",
+                    "secondary-fixed": "#e5e2e1",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "tertiary-container": "#0074a0",
+                    "on-secondary-fixed-variant": "#474746",
+                    "on-surface-variant": "#e7bcba",
+                    "on-secondary": "#313030",
+                    "surface-variant": "#353534",
+                    "surface-container-high": "#2a2a2a",
+                    "secondary-container": "#474746",
+                    "error": "#ffb4ab",
+                    "inverse-surface": "#e5e2e1",
+                    "error-container": "#93000a",
+                    "primary-container": "#d90429"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "void-lg": "80px",
+                    "gutter": "16px",
+                    "container-padding": "40px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-rt": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.2em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-rt": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.1", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "0.1em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: transparent !important;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            color: #e5e2e1;
+        }
+
+        .hud-overlay {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            pointer-events: none;
+            background: radial-gradient(circle, transparent 40%, rgba(13, 13, 13, 0.4) 100%);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .glitch-effect {
+            animation: glitch 0.3s cubic-bezier(.25,.46,.45,.94) infinite;
+        }
+
+        .pulse-subtle {
+            animation: pulse-op 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-op {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .vignette-alert {
+            box-shadow: inset 0 0 150px rgba(217, 4, 41, 0.15);
+        }
+    </style>
+</head>
+<body class="dark bg-transparent">
+<div class="hud-overlay vignette-alert flex flex-col justify-between p-container-padding">
+<!-- Top Center: Phase Indicator & Countdown -->
+<div class="fixed top-0 left-0 w-full flex flex-col items-center pt-void-lg pointer-events-none">
+<div class="flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-1 tracking-[0.3em] uppercase">HAREKET</span>
+<div class="flex items-baseline space-x-2">
+<span class="font-display-lg text-display-lg text-on-surface">0:24</span>
+</div>
+</div>
+<!-- Center Urgent Badge: KÖREBESİN -->
+<div class="mt-12">
+<div class="px-6 py-2 border border-primary-container bg-primary-container/10 backdrop-blur-[2px]">
+<span class="font-headline-md text-headline-md text-primary-container uppercase glitch-effect tracking-[0.2em]">KÖREBESİN</span>
+</div>
+</div>
+<div class="mt-4 px-4 py-1 bg-primary-container/5 backdrop-blur-[2px] border-x border-primary-container/20">
+<span class="font-label-sm text-label-sm text-on-surface tracking-[0.3em] uppercase" style="text-shadow: 0 0 8px rgba(217, 4, 41, 0.4)">P3 ELENDİ</span>
+</div></div>
+<!-- Bottom Left: Remaining Players -->
+<div class="fixed bottom-void-lg left-container-padding pointer-events-none">
+<div class="flex flex-col items-start">
+<div class="flex items-center space-x-3 mb-2 opacity-60">
+<span class="material-symbols-outlined text-[20px]" data-icon="groups">groups</span>
+<span class="font-label-sm text-label-sm uppercase">SQUAD_STATUS</span>
+</div>
+<div class="flex items-baseline space-x-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">KALAN:</span>
+<span class="font-headline-md text-headline-md text-on-surface">3</span>
+</div>
+<div class="w-32 h-[1px] bg-white/10 mt-4">
+<div class="w-2/3 h-full bg-primary-container"></div>
+</div>
+</div>
+</div>
+<!-- Bottom Right: Bullet Bounce Count -->
+<div class="fixed bottom-void-lg right-container-padding pointer-events-none text-right">
+<div class="flex flex-col items-end">
+<div class="flex items-center space-x-3 mb-2 opacity-60">
+<span class="font-label-sm text-label-sm uppercase">TACTICAL_CHARGE</span>
+<span class="material-symbols-outlined text-[20px]" data-icon="ads_click">ads_click</span>
+</div>
+<div class="flex items-baseline space-x-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">SEKME:</span>
+<span class="font-headline-md text-headline-md text-on-surface">1/3</span>
+</div>
+<!-- Visual Charge pips -->
+<div class="flex space-x-2 mt-4">
+<div class="w-8 h-1 bg-primary-container"></div>
+<div class="w-8 h-1 bg-white/10"></div>
+<div class="w-8 h-1 bg-white/10"></div>
+</div>
+</div>
+</div>
+<!-- Peripheral Decorative Elements (Radar vibes) -->
+<div class="absolute top-1/2 left-gutter -translate-y-1/2 opacity-20">
+<div class="w-[1px] h-32 bg-gradient-to-b from-transparent via-white to-transparent"></div>
+</div>
+<div class="absolute top-1/2 right-gutter -translate-y-1/2 opacity-20">
+<div class="w-[1px] h-32 bg-gradient-to-b from-transparent via-white to-transparent"></div>
+</div>
+<!-- Top Right Mini-Actions (Optional as per JSON references but keeping it for HUD feel) -->
+<div class="fixed top-gutter right-gutter flex space-x-6 opacity-40">
+<span class="material-symbols-outlined text-[24px]" data-icon="radar">radar</span>
+<span class="material-symbols-outlined text-[24px]" data-icon="settings">settings</span>
+</div>
+<!-- Top Left Brand (Small TopAppBar reference) -->
+<div class="fixed top-gutter left-gutter">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-[0.4em]">BLIND ARENA</span>
+</div>
+<div class="fixed bottom-12 left-0 w-full flex justify-center pointer-events-none">
+<div class="w-full py-2 bg-black/10 backdrop-blur-[1px] border-y border-white/5 flex justify-center">
+<span class="font-label-sm text-label-sm text-primary-container uppercase tracking-[0.4em] opacity-80">ELENDİN — İZLEYİP OYNUYORSUN</span>
+</div>
+</div></div>
+<!-- Background Atmospheric Effect -->
+<script>
+        // Simple micro-interaction for the countdown
+        let seconds = 24;
+        const timerDisplay = document.querySelector('.font-display-lg');
+        
+        setInterval(() => {
+            if (seconds > 0) {
+                seconds--;
+                const displaySecs = seconds < 10 ? `0:${seconds}` : `0:${seconds}`;
+                if(timerDisplay) timerDisplay.textContent = displaySecs;
+            }
+        }, 1000);
+
+        // Simulated pulse for the Blinded (KÖREBESİN) alert
+        const alertBadge = document.querySelector('.glitch-effect').parentElement;
+        setInterval(() => {
+            alertBadge.classList.toggle('border-primary-container');
+            alertBadge.classList.toggle('border-transparent');
+        }, 500);
+    </script>
+</body></html>
