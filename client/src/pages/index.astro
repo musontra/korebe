@@ -1,6 +1,6 @@
 ---
-// Phase 3: vision & sound + real HUD. Lobby (room code) -> game canvas with a HUD overlay.
-// Functional/plain HUD (Tailwind), NOT Stitch yet (that is Phase 4).
+// Phase 4b (C1): Antigravity Aura landing + lobby screens (Stitch design, adapted to v4 tokens).
+// #game (canvas + HUD) is carried over UNCHANGED from Phase 3; HUD restyle comes in C2.
 import "../styles/global.css";
 ---
 
@@ -9,38 +9,62 @@ import "../styles/global.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>körebe</title>
+    <title>Antigravity</title>
   </head>
-  <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
-    <div id="lobby" class="text-center">
-      <h1 class="text-xl font-semibold mb-4">körebe — Phase 3</h1>
-      <input
-        id="codeInput"
-        type="text"
-        value="ROOM1"
-        placeholder="room code"
-        class="px-3 py-2 rounded bg-neutral-800 border border-neutral-600 text-center"
-      />
-      <button id="joinBtn" class="ml-2 px-4 py-2 rounded bg-blue-600 hover:bg-blue-500">Katıl</button>
-      <p id="status" class="mt-4 text-sm text-neutral-400"></p>
+  <body class="min-h-screen bg-background text-on-surface flex items-center justify-center overflow-hidden">
+    <!-- ============ LANDING (room code entry) ============ -->
+    <div id="landing" class="relative min-h-screen w-full flex flex-col items-center justify-center px-gutter">
+      <section class="relative z-10 w-full max-w-2xl text-center space-y-void-lg">
+        <div class="space-y-6">
+          <h1 class="font-display-lg text-display-lg md:text-[64px] uppercase tracking-[0.5em] text-on-surface">ANTIGRAVITY</h1>
+          <p class="font-label-sm text-label-sm text-on-surface-variant uppercase opacity-60 tracking-widest">Karanlıkta avla, sessizce vur.</p>
+        </div>
+        <div class="flex flex-col items-center space-y-12 w-full max-w-sm mx-auto">
+          <div class="w-full relative group">
+            <input
+              id="codeInput"
+              type="text"
+              value="ROOM1"
+              placeholder="Oda kodu"
+              class="w-full bg-transparent border-b border-white/20 px-0 py-4 text-center font-headline-md text-headline-md focus:border-primary-container focus:border-b-2 placeholder:text-secondary-container outline-none uppercase tracking-[0.2em] transition-all duration-500"
+            />
+            <div class="absolute bottom-0 left-1/2 w-0 h-[2px] bg-primary-container group-focus-within:w-full group-focus-within:left-0 transition-all duration-700"></div>
+          </div>
+          <button
+            id="joinBtn"
+            class="group relative w-full overflow-hidden px-12 py-5 bg-primary-container text-white font-label-sm text-label-sm uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-95 transition-all duration-300"
+          >
+            <span class="relative z-10">Katıl</span>
+          </button>
+          <p id="status" class="font-label-sm text-label-sm text-on-surface-variant uppercase opacity-70 tracking-widest h-4"></p>
+        </div>
+      </section>
     </div>
 
-    <!-- Game: canvas with an absolute HUD overlay on top -->
+    <!-- ============ LOBBY (waiting for players) ============ -->
+    <div id="lobby" class="hidden relative min-h-screen w-full flex flex-col items-center justify-center px-container-padding py-void-lg">
+      <div class="flex flex-col items-center text-center space-y-void-lg">
+        <div class="space-y-gutter">
+          <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">SİSTEM ERİŞİMİ ONAYLANDI</p>
+          <h1 class="font-mono text-[48px] md:text-[64px] font-bold text-on-surface tracking-tighter">ODA KODU: <span id="lobbyCode" class="text-primary-container">—</span></h1>
+          <div class="inline-flex items-center gap-2 px-4 py-1 border border-white/10 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+            <span id="lobbyWaiting" class="font-label-sm text-label-sm uppercase text-on-surface">OYUNCU BEKLENİYOR</span>
+          </div>
+        </div>
+        <div id="lobbySlots" class="flex gap-12 md:gap-24 items-center justify-center"></div>
+      </div>
+    </div>
+
+    <!-- ============ GAME (canvas + HUD) — UNCHANGED from Phase 3 ============ -->
     <div id="game" class="hidden relative">
       <canvas id="canvas" class="block border border-neutral-700"></canvas>
-
-      <!-- HUD layer. pointer-events-none so canvas clicks (shooting) pass through. -->
       <div class="absolute inset-0 pointer-events-none select-none">
         <div class="absolute top-2 left-1/2 -translate-x-1/2 text-center">
           <div id="hudPhase" class="text-sm font-semibold text-neutral-100"></div>
           <div id="hudTimer" class="text-3xl font-bold text-neutral-50 leading-tight"></div>
         </div>
-        <div
-          id="hudBlind"
-          class="hidden absolute top-2 right-2 px-3 py-1 rounded bg-red-600 text-white text-sm font-bold tracking-wide"
-        >
-          KÖREBESİN
-        </div>
+        <div id="hudBlind" class="hidden absolute top-2 right-2 px-3 py-1 rounded bg-red-600 text-white text-sm font-bold tracking-wide">KÖREBESİN</div>
         <div id="hudAlive" class="absolute bottom-2 left-2 text-sm text-neutral-200"></div>
         <div id="hudBounce" class="hidden absolute bottom-2 right-2 text-sm font-semibold text-yellow-300"></div>
       </div>
@@ -54,18 +78,36 @@ import "../styles/global.css";
       import { ingestSounds } from "../game/vision";
       import { updateHud } from "../game/hud/hud";
 
+      const landing = document.getElementById("landing")!;
       const lobby = document.getElementById("lobby")!;
       const game = document.getElementById("game")!;
       const status = document.getElementById("status")!;
       const codeInput = document.getElementById("codeInput") as HTMLInputElement;
       const joinBtn = document.getElementById("joinBtn")!;
       const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+      const lobbyCode = document.getElementById("lobbyCode")!;
+      const lobbyWaiting = document.getElementById("lobbyWaiting")!;
+      const lobbySlots = document.getElementById("lobbySlots")!;
 
       let entered = false;
+
+      // Render N filled + (need-N) empty player slots (real waiting state, no fake data).
+      function renderSlots(count: number, need: number) {
+        let html = "";
+        for (let i = 0; i < need; i++) {
+          if (i < count) {
+            html += `<div class="w-24 h-24 bg-primary-container flex items-center justify-center"><span class="font-headline-md text-headline-md text-white">P${i + 1}</span></div>`;
+          } else {
+            html += `<div class="w-24 h-24 border border-white/10 flex items-center justify-center"><span class="text-on-surface-variant/30 text-3xl">+</span></div>`;
+          }
+        }
+        lobbySlots.innerHTML = html;
+      }
 
       function enterGame() {
         if (entered) return;
         entered = true;
+        landing.classList.add("hidden");
         lobby.classList.add("hidden");
         game.classList.remove("hidden");
         initCanvas(canvas);
@@ -75,25 +117,28 @@ import "../styles/global.css";
 
       joinBtn.addEventListener("click", () => {
         const code = codeInput.value.trim() || "ROOM1";
-        status.textContent = "connecting...";
+        lobbyCode.textContent = code;
+        landing.classList.add("hidden");
+        lobby.classList.remove("hidden");
+        renderSlots(0, 3);
         connect(code, {
           onJoined: (id) => {
-            status.textContent = `joined as ${id}`;
+            status.textContent = `${id}`;
           },
           onWaiting: (count, need) => {
-            status.textContent = `waiting ${count}/${need}`;
+            lobbyWaiting.textContent = `${count}/${need} OYUNCU BEKLENİYOR`;
+            renderSlots(count, need);
           },
           onSnapshot: (snap) => {
             enterGame();
-            // Orchestration lives in the page so net.ts stays transport-only.
             ingestSounds(snap.sounds);
             updateHud(snap);
           },
           onError: (m) => {
-            status.textContent = `error: ${m}`;
+            status.textContent = `HATA: ${m}`;
           },
           onClose: () => {
-            status.textContent = "disconnected";
+            status.textContent = "BAĞLANTI KESİLDİ";
           },
         });
       });
