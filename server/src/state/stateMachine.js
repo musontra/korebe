@@ -2,7 +2,7 @@
 // -> RoundEnd -> (NextRound | GameEnd). The gameLoop owns per-tick orchestration and calls these
 // helpers to enter phases, start rounds, and finish rounds. All timing is counted in TICKS.
 import { Phase, aliveIds } from "./gameState.js";
-import { ARENA_WIDTH, ARENA_HEIGHT, bouncesForAliveCount } from "../config.js";
+import { ARENA_WIDTH, ARENA_HEIGHT, bouncesForAliveCount, DEBUG } from "../config.js";
 import { selectBlind } from "../sim/blindSelect.js";
 
 // Place alive players evenly on a circle around the arena center, velocities zeroed.
@@ -25,7 +25,7 @@ function resetPositions(state) {
 export function enterPhase(state, phase, log) {
   state.phase = phase;
   state.tickCounter = 0;
-  log(`[phase] -> ${phase}`);
+  if (DEBUG) log(`[phase] -> ${phase}`); // high-volume; milestones (round/shoot/hit/game) still log
 }
 
 // RoundStart: weighted blind selection, reset positions, compute bounce budget from alive count.

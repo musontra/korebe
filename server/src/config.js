@@ -5,6 +5,12 @@
 // Port is configurable via env (PORT). config provides the fallback default.
 export const DEFAULT_PORT = 8080;
 
+// --- Logging ---
+// High-volume per-tick logs (phase transitions, each bullet bounce) are gated behind DEBUG so
+// production stays quiet. Match milestones (round start, shoot, hit, game end) always log.
+// Enable with `DEBUG=1 npm start`.
+export const DEBUG = !!process.env.DEBUG;
+
 // --- Tick / timing ---
 // The whole simulation is driven at a fixed tick rate. All durations are counted
 // in TICKS, never wall-clock seconds, so the simulation is deterministic.

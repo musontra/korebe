@@ -10,6 +10,7 @@ import {
   BULLET_SPEED,
   BULLET_RADIUS,
   PLAYER_RADIUS,
+  DEBUG,
 } from "./config.js";
 import { startRound, finishRound, enterPhase } from "./state/stateMachine.js";
 import { applyMovement } from "./sim/movement.js";
@@ -56,8 +57,8 @@ export function createGameLoop(room) {
 
       case Phase.BULLET_SIM: {
         const res = advanceBullet(state, state.blindId);
-        // Log each completed bounce as N/max while the budget still holds.
-        if (res.bounces > 0 && state.bouncesRemaining >= 0) {
+        // Log each completed bounce as N/max while the budget still holds. High-volume: DEBUG only.
+        if (DEBUG && res.bounces > 0 && state.bouncesRemaining >= 0) {
           const used = state.maxBounces - state.bouncesRemaining;
           log(`[bullet] bounce ${used}/${state.maxBounces}`);
         }

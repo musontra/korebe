@@ -1,0 +1,19 @@
+# Render blueprint for the Antigravity WebSocket server (infrastructure-as-code).
+# The client is NOT deployed here — it goes to Cloudflare Pages (see client/README.md).
+#
+# NOT DEPLOYED YET. This file just versions the intended config; actual deploy is a later,
+# deliberate step. Render auto-injects PORT, which server/src/index.js already reads.
+services:
+  - type: web
+    name: antigravity-server
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+    # NOTE (address at deploy time): this is a WebSocket-only server with no plain HTTP route,
+    # so a default HTTP health check on "/" can report unhealthy. If Render flags it, either
+    # disable the health check or add a tiny HTTP 200 handler. Do not add it pre-emptively.

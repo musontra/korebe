@@ -1,8 +1,10 @@
 // WebSocket client: connect to the server, send input commands, receive authoritative snapshots.
 import { setSnapshot, setMyId, type Snapshot } from "./state";
 
-// DEV: hardcoded, move to env in Phase 5
-const SERVER_URL = "ws://localhost:8080";
+// Server URL. In production set PUBLIC_SERVER_URL (a wss:// URL, since the client is served over
+// HTTPS and a ws:// connection would be blocked as mixed content). If unset — i.e. local dev with
+// no .env — it falls back to the local server, so `npm run dev` works with zero config.
+const SERVER_URL = import.meta.env.PUBLIC_SERVER_URL ?? "ws://localhost:8080";
 
 export interface NetCallbacks {
   onJoined?: (playerId: string, roomCode: string) => void;
