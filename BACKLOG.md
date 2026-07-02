@@ -29,3 +29,16 @@ are in `ShootingPhase`, end the round immediately instead of waiting for the tim
 
 **Why deferred:** accepted for V1. It would add a new code path into the state machine, against the
 Phase 5 principle of "minimum touch to the sim". Not worth it for a rare 10s delay.
+
+## V2 A2 — Wall-bounce spark particles
+
+**Current (A2):** particles fire on solid client-side events — elimination (`alive` true->false) and
+the bullet vanishing (`bullet` non-null->null). Wall/obstacle bounces have NO particle.
+
+**To do (optional):** spark particles at each bounce. The client would have to INFER a bounce from
+the bullet's position delta between snapshots (a sharp direction change), since the public snapshot
+carries `bullet.pos` only (no velocity, no bounce event).
+
+**Why deferred:** at 30 Hz a bounce can happen and reverse between two ticks, so client-side bounce
+detection is approximate and flaky. The core impacts are tied to exact events and are solid; bounce
+sparks would be a fragile guess. Revisit only if the extra flair is worth the imprecision.

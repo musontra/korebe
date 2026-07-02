@@ -9,7 +9,16 @@ import "../styles/global.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Antigravity</title>
+    <style is:global>
+      /* Cosmetic screen fades. Purely visual: the animation only applies while a screen is visible
+         (:not(.hidden)), so it replays each time hud.ts / the orchestrator reveals it — including on
+         rematch — without touching any show/hide LOGIC. Delete this block to restore instant swaps. */
+      @keyframes agFadeIn { from { opacity: 0; } to { opacity: 1; } }
+      #game:not(.hidden),
+      #gameOver:not(.hidden) { animation: agFadeIn 0.26s ease-out; }
+    </style>
   </head>
   <body class="min-h-screen bg-background text-on-surface flex items-center justify-center overflow-hidden">
     <!-- ============ LANDING ============ -->
@@ -130,6 +139,7 @@ import "../styles/global.css";
       import { ingestSounds } from "../game/vision";
       import { updateHud } from "../game/hud/hud";
       import { initAudio, updateAudio, toggleMute, play } from "../game/audio";
+      import { initJuice, updateJuice } from "../game/juice";
 
       const landing = document.getElementById("landing")!;
       const lobby = document.getElementById("lobby")!;
@@ -165,6 +175,7 @@ import "../styles/global.css";
         initCanvas(canvas);
         startRenderer();
         startInput(canvas);
+        initJuice(canvas); // particles are drawn by the renderer; this wires the shake transform
       }
 
       joinBtn.addEventListener("click", () => {
@@ -186,6 +197,7 @@ import "../styles/global.css";
             ingestSounds(snap.sounds); // also fires the in-sync footstep audio (blind only)
             updateHud(snap);
             updateAudio(snap); // shot / hit / standoff music / rematch reset
+            updateJuice(snap); // impact/elimination particles + elimination screen shake
           },
           onError: (m) => { status.textContent = `HATA: ${m}`; },
           onClose: () => { status.textContent = "BAĞLANTI KESİLDİ"; },

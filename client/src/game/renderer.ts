@@ -4,6 +4,7 @@
 import { getSnapshot, type PlayerView } from "./state";
 import { getCtx, worldToPixel, CANVAS_SIZE } from "./canvas";
 import { drawVisionOverlay } from "./vision";
+import { updateAndDraw as drawParticles } from "./particles";
 
 // World units; must match server config (PLAYER_RADIUS=25, BULLET_RADIUS=8).
 const PLAYER_RADIUS = 25;
@@ -66,6 +67,10 @@ function draw(): void {
     ctx.fillStyle = "#ffd23b";
     ctx.fill();
   }
+
+  // Cosmetic particles (bullet impact / elimination) drawn BEFORE the darkness, so the blind
+  // player only sees the ones inside their reveal circle (no position leak).
+  drawParticles(ctx);
 
   // Blind-only darkness + sound ripples. No-op for non-blind clients (no darkness leak).
   drawVisionOverlay(ctx, snap);

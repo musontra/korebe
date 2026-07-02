@@ -16,7 +16,9 @@ can start a fresh match without a new room code. Same work as **"Phase 5.5 — R
 Footstep / gunshot / hit sounds, cowboy-standoff music during `ShootingPhase`; bullet-impact
 particles, elimination screen shake, button/transition effects. All driven off events already
 in the server snapshot — no server changes.
-**Durum: bekliyor**
+**Durum: tamamlandı (kod)** — A1 ses (glob loader, event triggers, mute, step debounce) + A2 juice
+(impact/elimination particles, elimination screen shake, screen fades, favicon). Real-audio
+tuning pending assets being dropped into `client/src/assets/audio/`.
 
 ## 3. C — Map / obstacles ⚙️🎨
 Place obstacles in the arena on the server (bullet-reflection code has been ready since Phase 1);
