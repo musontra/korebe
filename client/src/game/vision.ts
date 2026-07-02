@@ -3,6 +3,7 @@
 // For non-blind players drawVisionOverlay() is a strict no-op, so darkness never leaks to them.
 import { worldToPixel, CANVAS_SIZE } from "./canvas";
 import type { Snapshot, SoundView } from "./state";
+import { play } from "./audio";
 
 // --- Tunables (adjust gameplay feel from here; do not hunt through the code) ---
 const VISION_RADIUS = 180; // px: outer radius of the blind player's visible circle
@@ -51,6 +52,9 @@ export function ingestSounds(sounds: SoundView[]): void {
       if (dxp * dxp + dyp * dyp < thr2) continue outer; // recent ripple too close -> skip this sound
     }
     ripples.push({ x: s.pos.x, y: s.pos.y, born: now });
+    // Footstep audio is fired HERE, at the exact moment a ripple is created, so the sound the
+    // blind player hears is perfectly in sync with the ripple it sees (same debounced event).
+    play("step");
   }
 }
 

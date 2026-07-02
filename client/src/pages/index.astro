@@ -75,6 +75,9 @@ import "../styles/global.css";
           <span class="font-label-sm text-label-sm text-primary uppercase tracking-[0.4em]">BLIND ARENA</span>
         </div>
 
+        <!-- Top-right mute toggle. pointer-events-auto so it is clickable through the pass-through HUD. -->
+        <button id="muteBtn" class="pointer-events-auto absolute top-gutter right-gutter text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity" aria-label="Ses aç/kapat">🔊</button>
+
         <!-- Bottom left: remaining players -->
         <div class="absolute bottom-void-lg left-container-padding">
           <div class="flex items-baseline space-x-2">
@@ -126,6 +129,7 @@ import "../styles/global.css";
       import { startInput } from "../game/input";
       import { ingestSounds } from "../game/vision";
       import { updateHud } from "../game/hud/hud";
+      import { initAudio, updateAudio, toggleMute, play } from "../game/audio";
 
       const landing = document.getElementById("landing")!;
       const lobby = document.getElementById("lobby")!;
@@ -164,6 +168,8 @@ import "../styles/global.css";
       }
 
       joinBtn.addEventListener("click", () => {
+        initAudio(); // unlock the AudioContext on this user gesture (browser autoplay policy)
+        play("ui");
         const code = codeInput.value.trim() || "ROOM1";
         lobbyCode.textContent = code;
         landing.classList.add("hidden");
@@ -177,8 +183,9 @@ import "../styles/global.css";
           },
           onSnapshot: (snap) => {
             enterGame();
-            ingestSounds(snap.sounds);
+            ingestSounds(snap.sounds); // also fires the in-sync footstep audio (blind only)
             updateHud(snap);
+            updateAudio(snap); // shot / hit / standoff music / rematch reset
           },
           onError: (m) => { status.textContent = `HATA: ${m}`; },
           onClose: () => { status.textContent = "BAĞLANTI KESİLDİ"; },
@@ -187,8 +194,16 @@ import "../styles/global.css";
 
       // TEKRAR OYNA: request an in-place rematch (server resets the room when all connected
       // players are ready). Re-sending is harmless. ÇIK: leave by reloading to an empty lobby.
-      document.getElementById("playAgainBtn")!.addEventListener("click", () => sendRematch());
+      document.getElementById("playAgainBtn")!.addEventListener("click", () => { play("ui"); sendRematch(); });
       document.getElementById("exitBtn")!.addEventListener("click", () => location.reload());
+
+      // Mute toggle: one icon, session-only, silences/unsilences everything.
+      const muteBtn = document.getElementById("muteBtn")!;
+      muteBtn.addEventListener("click", () => {
+        const m = toggleMute();
+        muteBtn.textContent = m ? "🔇" : "🔊";
+        if (!m) play("ui"); // click feedback only when turning sound back on
+      });
     </script>
   </body>
 </html>
