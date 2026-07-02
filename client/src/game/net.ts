@@ -68,3 +68,9 @@ export function sendInput(dx: number, dy: number): void {
 export function sendShoot(dx: number, dy: number): void {
   send({ type: "SHOOT", dx, dy });
 }
+
+// Rematch intent ("play again"). The server only honors it at GameEnd and starts a fresh match
+// in place once all connected players are ready (see server/src/room.js). Re-sending is harmless.
+export function sendRematch(): void {
+  send({ type: "REMATCH" });
+}

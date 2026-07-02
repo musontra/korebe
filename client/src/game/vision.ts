@@ -29,6 +29,12 @@ interface Ripple {
 
 const ripples: Ripple[] = [];
 
+// Drop all active ripples. Called on rematch (no page reload) so sounds from the previous match
+// don't linger into the new one. Ripples self-expire in ~700ms, but this makes the reset instant.
+export function clearRipples(): void {
+  ripples.length = 0;
+}
+
 // Add this snapshot's sound events as new ripples. Called once per snapshot (not per frame).
 // Position-based debounce keeps one player's rapid sounds from piling into a dense, location-revealing cluster.
 export function ingestSounds(sounds: SoundView[]): void {

@@ -3,6 +3,7 @@
 // Pure DOM/state reflection — no physics, no server calls.
 import type { Snapshot } from "../state";
 import { getMyId } from "../state";
+import { clearRipples } from "../vision";
 
 // must match server config (server/src/config.js)
 const TICK_RATE = 30;
@@ -32,6 +33,8 @@ function fmt(ticks: number): string {
 // Track alive state across snapshots to detect eliminations (alive true -> false).
 let prevAlive: Record<string, boolean> = {};
 let toastTimer: number | undefined;
+// Track the winner so we can detect a rematch (winnerId non-null -> null) and reset visual state.
+let prevWinnerId: string | null = null;
 
 function showRoundEndToast(id: string): void {
   const toast = el("roundEnd");
@@ -44,6 +47,22 @@ function showRoundEndToast(id: string): void {
   }
 }
 
+// A rematch starts a new match in place (no page reload), so leftover visual state from the
+// previous match must be wiped explicitly: game-over screen, eliminated banner, round-end toast,
+// the alive-diff baseline (so a revived player doesn't fire a stale "elendi" toast), and ripples.
+function resetForNewMatch(snap: Snapshot): void {
+  el("gameOver")?.classList.add("hidden");
+  el("eliminatedBanner")?.classList.add("hidden");
+  el("roundEnd")?.classList.add("hidden");
+  if (toastTimer !== undefined) {
+    clearTimeout(toastTimer);
+    toastTimer = undefined;
+  }
+  prevAlive = {};
+  for (const [id, p] of Object.entries(snap.players)) prevAlive[id] = p.alive;
+  clearRipples();
+}
+
 export function updateHud(snap: Snapshot): void {
   const phaseEl = el("hudPhase");
   const timerEl = el("hudTimer");
@@ -54,6 +73,11 @@ export function updateHud(snap: Snapshot): void {
 
   const isBlind = !!(snap.you && snap.you.isBlind);
   const myId = getMyId();
+
+  // Detect a rematch (previous match had a winner, this snapshot has none) and wipe leftover
+  // visual state BEFORE the rest of this frame runs (so no stale toast/banner survives).
+  if (prevWinnerId !== null && snap.winnerId === null) resetForNewMatch(snap);
+  prevWinnerId = snap.winnerId;
 
   if (phaseEl) phaseEl.textContent = PHASE_LABELS[snap.phase] ?? snap.phase;
 
@@ -108,6 +132,21 @@ export function updateHud(snap: Snapshot): void {
         title.classList.toggle("text-on-surface", !iWon);
       }
       if (result) result.textContent = `KAZANAN: ${snap.winnerId}`;
+
+      // Rematch readiness. need = connected players; körebe requires >= 2. When too few remain,
+      // show "yeterli oyuncu yok" and disable the button so pressing it does nothing.
+      const enough = snap.rematchNeed >= 2;
+      const rstatus = el("rematchStatus");
+      if (rstatus) {
+        rstatus.textContent = enough
+          ? `HAZIR: ${snap.rematchReady}/${snap.rematchNeed}`
+          : "YETERLİ OYUNCU YOK";
+      }
+      const playBtn = el("playAgainBtn");
+      if (playBtn) {
+        playBtn.classList.toggle("opacity-40", !enough);
+        playBtn.classList.toggle("pointer-events-none", !enough);
+      }
     } else {
       over.classList.add("hidden");
     }

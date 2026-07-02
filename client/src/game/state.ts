@@ -33,6 +33,9 @@ export interface Snapshot {
   bouncesRemaining: number;
   maxBounces: number;
   winnerId: string | null;
+  // Rematch readiness for the game-over screen (see server/src/room.js). need = connected count.
+  rematchReady: number;
+  rematchNeed: number;
   you: { id: string; isBlind: boolean };
   sounds: SoundView[];
 }

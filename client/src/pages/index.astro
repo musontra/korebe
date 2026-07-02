@@ -111,6 +111,7 @@ import "../styles/global.css";
             <div class="h-[1px] w-12 bg-white/20"></div>
           </div>
         </div>
+        <p id="rematchStatus" class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.3em] mb-8 h-4"></p>
         <div class="flex flex-col md:flex-row gap-6 w-full max-w-md">
           <button id="playAgainBtn" class="flex-1 bg-primary-container text-white py-5 px-8 font-label-sm text-label-sm uppercase tracking-widest border border-primary-container active:scale-95 transition-all duration-300">TEKRAR OYNA</button>
           <button id="exitBtn" class="flex-1 border border-white/20 text-on-surface py-5 px-8 font-label-sm text-label-sm uppercase tracking-widest hover:bg-white/5 active:scale-95 transition-all duration-300">ÇIK</button>
@@ -119,7 +120,7 @@ import "../styles/global.css";
     </div>
 
     <script>
-      import { connect } from "../game/net";
+      import { connect, sendRematch } from "../game/net";
       import { initCanvas } from "../game/canvas";
       import { startRenderer } from "../game/renderer";
       import { startInput } from "../game/input";
@@ -184,8 +185,9 @@ import "../styles/global.css";
         });
       });
 
-      // Game-over buttons: V1 both reload to an empty lobby (true rematch is backlog).
-      document.getElementById("playAgainBtn")!.addEventListener("click", () => location.reload());
+      // TEKRAR OYNA: request an in-place rematch (server resets the room when all connected
+      // players are ready). Re-sending is harmless. ÇIK: leave by reloading to an empty lobby.
+      document.getElementById("playAgainBtn")!.addEventListener("click", () => sendRematch());
       document.getElementById("exitBtn")!.addEventListener("click", () => location.reload());
     </script>
   </body>

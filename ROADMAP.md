@@ -10,7 +10,7 @@ Deferred/one-off items live in [BACKLOG.md](BACKLOG.md); this file is the ordere
 Play again in the SAME room after a match ends: reset the room state at `GameEnd` so players
 can start a fresh match without a new room code. Same work as **"Phase 5.5 — Rematch"** in
 [BACKLOG.md](BACKLOG.md) — see that note for the analysis; not repeated here.
-**Durum: bekliyor**
+**Durum: tamamlandı** (ready-based in-place reset; server + client, bot/browser tested)
 
 ## 2. A — Sound + Juice 🎨
 Footstep / gunshot / hit sounds, cowboy-standoff music during `ShootingPhase`; bullet-impact
