@@ -10,6 +10,8 @@ A 3-player top-down multiplayer arena game based on the "blind tag" (körebe) me
 - NO physics engine anywhere. NO Phaser/Unity/Godot. NO Firebase for gameplay.
 - NO matchmaking in V1.
 
+V2 work follows ROADMAP.md order. "no matchmaking in V1" is intentionally revisited in package D.
+
 ## The single most important rule: SERVER-AUTHORITATIVE
 - ALL physics, collision, bullet motion, bounce, hit detection, elimination happen on the SERVER.
 - The client has ZERO physics. The client only:
