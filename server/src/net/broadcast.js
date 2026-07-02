@@ -14,6 +14,7 @@ function noise() {
 
 export function broadcastSnapshots(room) {
   const state = room.state;
+  const rematch = room.getRematch(); // { ready, need } for the game-over screen
 
   // Shared (public) portion. Who is blind is public; the dark-vision/sound is what stays private.
   const players = {};
@@ -37,6 +38,10 @@ export function broadcastSnapshots(room) {
     bouncesRemaining: state.bouncesRemaining,
     maxBounces: state.maxBounces,
     winnerId: state.winnerId,
+    // Rematch readiness for the game-over screen: how many connected players pressed "play again"
+    // vs. how many are connected (need is dynamic, see room.js).
+    rematchReady: rematch.ready,
+    rematchNeed: rematch.need,
   };
 
   for (const [id, ws] of room.connections()) {

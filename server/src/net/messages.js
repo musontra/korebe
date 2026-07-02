@@ -6,6 +6,7 @@ export const ClientMessageType = {
   JOIN: "JOIN", // {type, code}
   INPUT: "INPUT", // {type, dx, dy}  movement direction (only honored in MovementPhase)
   SHOOT: "SHOOT", // {type, dx, dy}  shoot direction (only honored from the blind player in ShootingPhase)
+  REMATCH: "REMATCH", // {type}  "play again" intent; only honored at GameEnd (see room.js)
 };
 
 // Server -> Client
