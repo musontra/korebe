@@ -2,7 +2,7 @@
 // CRITICAL: every effect here applies ONLY when the receiving client is the blind player.
 // For non-blind players drawVisionOverlay() is a strict no-op, so darkness never leaks to them.
 import { worldToPixel, CANVAS_SIZE } from "./canvas";
-import type { Snapshot, SoundView } from "./state";
+import type { Snapshot, SoundView, Obstacle } from "./state";
 import { play } from "./audio";
 
 // --- Tunables (adjust gameplay feel from here; do not hunt through the code) ---
@@ -14,6 +14,9 @@ const OVERLAY_MAX_ALPHA = 1.0;
 const RIPPLE_LIFETIME_MS = 700; // how long a sound ripple stays on screen
 const RIPPLE_EXPAND_SPEED = 0.12; // px per ms: how fast a ripple radius grows
 const RIPPLE_START_RADIUS = 6; // px: ripple radius at birth
+// The map layout is shared knowledge (not a per-player position leak), so the blind player still
+// gets a dim outline of obstacles through the darkness — faint enough to not compete with ripples.
+const OBSTACLE_FAINT_ALPHA = 0.35;
 
 // --- Ripple debounce (server sends id-less, noisy positions; we thin them client-side) ---
 // A new sound is dropped if a ripple already exists within RIPPLE_DEBOUNCE_DIST_PX pixels that is
@@ -76,8 +79,22 @@ export function drawVisionOverlay(ctx: CanvasRenderingContext2D, snap: Snapshot)
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
   }
 
+  // Faint obstacle outlines through the darkness (map layout leaks no player position).
+  drawFaintObstacles(ctx, snap.obstacles);
+
   // Ripples are drawn ON TOP of the darkness so the blind player can sense sounds in the dark.
   drawRipples(ctx);
+}
+
+function drawFaintObstacles(ctx: CanvasRenderingContext2D, obstacles: Obstacle[]): void {
+  ctx.save();
+  ctx.globalAlpha = OBSTACLE_FAINT_ALPHA;
+  ctx.strokeStyle = "crimson";
+  ctx.lineWidth = 2;
+  for (const o of obstacles) {
+    ctx.strokeRect(worldToPixel(o.x), worldToPixel(o.y), worldToPixel(o.w), worldToPixel(o.h));
+  }
+  ctx.restore();
 }
 
 function drawRipples(ctx: CanvasRenderingContext2D): void {

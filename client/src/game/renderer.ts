@@ -45,10 +45,19 @@ function draw(): void {
     return;
   }
 
-  // obstacles (rectangles) — empty in Phase 2/3
-  ctx.fillStyle = "#444";
+  // Obstacles: dark fill + crimson edge. Static map layout, same for every client — the blind
+  // player also gets a faint version of these through the darkness overlay (see vision.ts),
+  // since the layout is shared knowledge and showing it doesn't leak any player's position.
   for (const o of snap.obstacles) {
-    ctx.fillRect(worldToPixel(o.x), worldToPixel(o.y), worldToPixel(o.w), worldToPixel(o.h));
+    const x = worldToPixel(o.x);
+    const y = worldToPixel(o.y);
+    const w = worldToPixel(o.w);
+    const h = worldToPixel(o.h);
+    ctx.fillStyle = "#2b2b2b";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = "crimson";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, w, h);
   }
 
   for (const [id, p] of Object.entries(snap.players)) {
