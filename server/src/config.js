@@ -25,13 +25,17 @@ export const ARENA_HEIGHT = 1000;
 // Static AABB obstacles. Two hard constraints: (1) THICK (>= ~50) so a bullet moving BULLET_SPEED
 // per tick can't step across one in a single tick and tunnel through without ever overlapping;
 // (2) must NOT cover the 3 spawn points on the R=300 spawn ring, or a player would spawn inside one.
-// Symmetric (both axes) for fairness. Starting set — tune placement for playability.
+// Symmetric (both axes) for fairness. Tuned for playability: the four blocks are pulled IN toward
+// the center (from 180 -> 280) to narrow the open ring and create mid-arena hiding pockets/corridors
+// for non-blind players, while still clearing the 3 spawn points (bottom blocks stay ~40px from the
+// side spawns at y=650, > player radius 25). The center block is kept large to make a pure straight
+// shot across the middle harder and reward bounces.
 export const OBSTACLES = [
   { x: 440, y: 440, w: 120, h: 120 }, // center: cover + central bounce faces
-  { x: 180, y: 180, w: 90, h: 90 }, // corners: hiding + wall-adjacent bounce setups
-  { x: 730, y: 180, w: 90, h: 90 },
-  { x: 180, y: 730, w: 90, h: 90 },
-  { x: 730, y: 730, w: 90, h: 90 },
+  { x: 280, y: 280, w: 90, h: 90 }, // mid-ring blocks: hiding pockets + bounce setups
+  { x: 630, y: 280, w: 90, h: 90 },
+  { x: 280, y: 630, w: 90, h: 90 },
+  { x: 630, y: 630, w: 90, h: 90 },
 ];
 
 // --- Round phase durations (in ticks) ---
