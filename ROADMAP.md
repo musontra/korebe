@@ -23,11 +23,13 @@ tuning pending assets being dropped into `client/src/assets/audio/`.
 ## 3. C — Map / obstacles ⚙️🎨
 Place obstacles in the arena on the server (bullet-reflection code has been ready since Phase 1);
 render the map visually on the client.
-**Durum: server katmanı tamam** — bullet-obstacle reflection düzeltildi (Phase 1'den beri kırıktı:
+**Durum: tamamlandı** — bullet-obstacle reflection düzeltildi (Phase 1'den beri kırıktı:
 merkez-içeride dejenerasyonu, birim testle bulundu), player-obstacle solid çarpışma eklendi
-(resolvePlayerObstacle), quincunx yerleşim (merkez 120² + 4 iç blok, config.js).
-KALAN: **ADIM 3** — engel görseli (koyu dolgu + crimson kenar) + körebe için soluk-görünür
-(harita ortak bilgi, konum sızdırmaz). Ayrıca yerleşim gerçek oynanışta tekrar değerlendirilecek.
+(resolvePlayerObstacle), quincunx yerleşim (merkez 120² + 4 iç blok, config.js), client engel görseli
+(koyu dolgu + crimson kenar, renderer.ts) + körebe için karanlığın üzerinden soluk kenarlık (harita
+ortak bilgi, konum sızdırmaz — vision.ts). Bot/browser testi yapıldı (3 sekme, körebe görünümü doğrulandı).
+NOT: Yerleşim (quincunx) gerçek oynanışta tekrar değerlendirilecek — dış halka açık, saklanma merkezde;
+oyun oynanınca ayarlanabilir (config tek satır).
 
 ## 4. B — Character art, static 🎨
 Replace the plain circles with top-down character sprites. Static art only — NO animation
