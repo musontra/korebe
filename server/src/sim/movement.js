@@ -1,6 +1,6 @@
 // Movement phase simulation: integrate player input, solid player-player collision, emit sound events.
 import { PLAYER_MOVE_SPEED, PLAYER_RADIUS, SOUND_SPEED_THRESHOLD } from "../config.js";
-import { clampToArena, resolvePlayerCollision } from "./collision.js";
+import { clampToArena, resolvePlayerCollision, resolvePlayerObstacle } from "./collision.js";
 import { aliveIds } from "../state/gameState.js";
 
 // Apply one movement tick.
@@ -31,11 +31,18 @@ export function applyMovement(state, inputs) {
     clampToArena(p.pos, PLAYER_RADIUS);
   }
 
-  // 2) resolve solid player-player collisions (a few iterations for stability)
+  // 2) resolve solid collisions: player-player AND player-obstacle, interleaved over a few
+  // iterations so the two solvers settle together (a player pushed off another can be pushed off
+  // an obstacle on the next pass, and vice versa).
   for (let iter = 0; iter < 3; iter++) {
     for (let i = 0; i < ids.length; i++) {
       for (let j = i + 1; j < ids.length; j++) {
         resolvePlayerCollision(state.players[ids[i]], state.players[ids[j]], PLAYER_RADIUS);
+      }
+    }
+    for (const id of ids) {
+      for (const obs of state.obstacles) {
+        resolvePlayerObstacle(state.players[id].pos, PLAYER_RADIUS, obs);
       }
     }
   }

@@ -29,6 +29,39 @@ export function resolvePlayerCollision(a, b, radius) {
   }
 }
 
+// Solid player-obstacle collision: push a circle OUT of an AABB (in-place). Position only — a
+// player is blocked, not bounced (velocity is untouched). Corner overlaps push along the true
+// normal toward the nearest corner point, which settles cleanly instead of jittering.
+export function resolvePlayerObstacle(pos, radius, obs) {
+  const cx = Math.max(obs.x, Math.min(pos.x, obs.x + obs.w));
+  const cy = Math.max(obs.y, Math.min(pos.y, obs.y + obs.h));
+  const dx = pos.x - cx;
+  const dy = pos.y - cy;
+  const centerInside = dx === 0 && dy === 0;
+
+  if (!centerInside && dx * dx + dy * dy >= radius * radius) return; // no overlap
+
+  if (centerInside) {
+    // Center inside the box (deep overlap): eject through the shallowest face.
+    const left = pos.x - obs.x;
+    const right = obs.x + obs.w - pos.x;
+    const top = pos.y - obs.y;
+    const bottom = obs.y + obs.h - pos.y;
+    if (Math.min(left, right) <= Math.min(top, bottom)) {
+      pos.x = left < right ? obs.x - radius : obs.x + obs.w + radius;
+    } else {
+      pos.y = top < bottom ? obs.y - radius : obs.y + obs.h + radius;
+    }
+    return;
+  }
+
+  // Center outside, circle overlaps a face/corner: push out along the normal to exactly radius.
+  const dist = Math.hypot(dx, dy);
+  const push = radius - dist;
+  pos.x += (dx / dist) * push;
+  pos.y += (dy / dist) * push;
+}
+
 // Reflect a bullet off the arena walls (mirror reflection). Returns how many bounces occurred (0..2).
 export function reflectOffWalls(bullet, radius) {
   let bounces = 0;
