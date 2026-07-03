@@ -21,6 +21,19 @@ export const TICK_MS = 1000 / TICK_RATE; // ~33.33ms per tick
 export const ARENA_WIDTH = 1000;
 export const ARENA_HEIGHT = 1000;
 
+// --- Obstacles (Package C) ---
+// Static AABB obstacles. Two hard constraints: (1) THICK (>= ~50) so a bullet moving BULLET_SPEED
+// per tick can't step across one in a single tick and tunnel through without ever overlapping;
+// (2) must NOT cover the 3 spawn points on the R=300 spawn ring, or a player would spawn inside one.
+// Symmetric (both axes) for fairness. Starting set — tune placement for playability.
+export const OBSTACLES = [
+  { x: 440, y: 440, w: 120, h: 120 }, // center: cover + central bounce faces
+  { x: 180, y: 180, w: 90, h: 90 }, // corners: hiding + wall-adjacent bounce setups
+  { x: 730, y: 180, w: 90, h: 90 },
+  { x: 180, y: 730, w: 90, h: 90 },
+  { x: 730, y: 730, w: 90, h: 90 },
+];
+
 // --- Round phase durations (in ticks) ---
 export const MOVEMENT_PHASE_TICKS = 10 * TICK_RATE; // 10s = 300 ticks
 

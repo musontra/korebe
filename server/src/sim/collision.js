@@ -54,15 +54,35 @@ export function reflectOffWalls(bullet, radius) {
 }
 
 // Reflect a bullet off one AABB obstacle {x,y,w,h} (mirror reflection). Returns 0 or 1.
-// Phase 1 has no obstacles, so callers iterate an empty array and this is never invoked.
 export function reflectOffObstacle(bullet, radius, obs) {
   const cx = Math.max(obs.x, Math.min(bullet.pos.x, obs.x + obs.w));
   const cy = Math.max(obs.y, Math.min(bullet.pos.y, obs.y + obs.h));
   const dx = bullet.pos.x - cx;
   const dy = bullet.pos.y - cy;
-  if (dx * dx + dy * dy > radius * radius) return 0; // no overlap
+  const centerInside = dx === 0 && dy === 0; // bullet CENTER stepped inside the box
 
-  // Reflect on the axis of shallowest penetration and push the bullet clear of the box.
+  // No contact: center outside AND the circle doesn't reach the box.
+  if (!centerInside && dx * dx + dy * dy > radius * radius) return 0;
+
+  if (centerInside) {
+    // At BULLET_SPEED a single step can land the center inside the box, where the closest-point
+    // normal degenerates (dx=dy=0). Resolve by the SHALLOWEST face: flip that axis and push the
+    // bullet back out the side it entered. Without this the bullet sails straight through.
+    const left = bullet.pos.x - obs.x;
+    const right = obs.x + obs.w - bullet.pos.x;
+    const top = bullet.pos.y - obs.y;
+    const bottom = obs.y + obs.h - bullet.pos.y;
+    if (Math.min(left, right) <= Math.min(top, bottom)) {
+      bullet.vel.x = -bullet.vel.x;
+      bullet.pos.x = left < right ? obs.x - radius : obs.x + obs.w + radius;
+    } else {
+      bullet.vel.y = -bullet.vel.y;
+      bullet.pos.y = top < bottom ? obs.y - radius : obs.y + obs.h + radius;
+    }
+    return 1;
+  }
+
+  // Center outside, circle grazes a face/corner: reflect on the shallowest-penetration axis.
   if (Math.abs(dx) > Math.abs(dy)) {
     bullet.vel.x = -bullet.vel.x;
     bullet.pos.x = dx >= 0 ? obs.x + obs.w + radius : obs.x - radius;

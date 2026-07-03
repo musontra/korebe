@@ -2,6 +2,8 @@
 // The server is the single owner of this object. For performance we mutate it in-place each tick
 // (this is a deliberate decision: there is exactly one writer — the room's game loop).
 
+import { OBSTACLES } from "../config.js";
+
 export const Phase = {
   ROUND_START: "RoundStart",
   MOVEMENT: "MovementPhase",
@@ -14,7 +16,7 @@ export const Phase = {
 export function createGameState() {
   return {
     players: {}, // id -> { pos:{x,y}, vel:{x,y}, alive:bool, isBlind:bool }
-    obstacles: [], // Phase 1: empty. Bullet reflection loop must handle the empty array safely.
+    obstacles: OBSTACLES.map((o) => ({ ...o })), // static AABBs (cloned so no shared mutation)
     bullet: null, // { pos:{x,y}, vel:{x,y} } or null
     phase: Phase.ROUND_START,
     tickCounter: 0, // ticks elapsed WITHIN the current phase
