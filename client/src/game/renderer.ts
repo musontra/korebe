@@ -5,6 +5,7 @@ import { getSnapshot, type PlayerView } from "./state";
 import { getCtx, worldToPixel, CANVAS_SIZE } from "./canvas";
 import { drawVisionOverlay } from "./vision";
 import { updateAndDraw as drawParticles } from "./particles";
+import { getSprite } from "./sprites";
 
 // World units; must match server config (PLAYER_RADIUS=25, BULLET_RADIUS=8).
 const PLAYER_RADIUS = 25;
@@ -92,10 +93,16 @@ function drawPlayer(id: string, p: PlayerView): void {
   const r = worldToPixel(PLAYER_RADIUS);
 
   ctx.globalAlpha = p.alive ? 1 : 0.35;
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = PLAYER_COLORS[id] ?? "#cccccc";
-  ctx.fill();
+  const sprite = getSprite(id, p.isBlind);
+  if (sprite) {
+    ctx.drawImage(sprite, x - r, y - r, r * 2, r * 2);
+  } else {
+    // Fallback while no sprite asset exists for this id yet (or hasn't loaded).
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = PLAYER_COLORS[id] ?? "#cccccc";
+    ctx.fill();
+  }
   ctx.globalAlpha = 1;
 
   // blind player = white ring

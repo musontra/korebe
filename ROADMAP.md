@@ -34,7 +34,14 @@ oyun oynanınca ayarlanabilir (config tek satır).
 ## 4. B — Character art, static 🎨
 Replace the plain circles with top-down character sprites. Static art only — NO animation
 (that is package G).
-**Durum: bekliyor**
+**Durum: tamamlandı** — asset-agnostic glob loader (`client/src/game/sprites.ts`, audio.ts ile aynı
+desen, eksik dosya = daireye fallback), `renderer.ts` drawPlayer sprite çiziyor, rotasyon yok (server
+yön göndermiyor). 3 karakter × 2 varyant (normal + `_blind`, körebe olunca silahlı hale geçiyor,
+beyaz halka da korunuyor) — P1 hitman, P2 woman, P3 zombi. Round rotasyonu boyunca (P2→P1→P2)
+tarayıcıda canlı doğrulandı: kod her frame'de yalnızca `isBlind`'a bakıyor, stale state riski yok.
+NOT: P3 (zombi) için normal/blind kaynak görselleri birbirine çok benziyor — silahlı geçiş gözle
+neredeyse fark edilmiyor (P1/P2'de net). Kod hazır, sadece `P3_blind.png` daha belirgin silahlı bir
+görselle değiştirilmeli (asset işi, kod değişmez).
 
 ## 5. F — Mobile / touch controls 🎨
 On-screen joystick + tap-to-shoot, without breaking desktop input. Required for a truly
